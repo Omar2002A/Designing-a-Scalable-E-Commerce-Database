@@ -394,3 +394,264 @@ CREATE TABLE WishlistItems
     CONSTRAINT UQ_WishlistItems_WishlistProduct
         UNIQUE (WishlistID, ProductID)
 );
+
+INSERT INTO Users
+(
+    FirstName,
+    LastName,
+    Email,
+    PasswordHash,
+    Phone
+)
+VALUES
+('Omar',  'Meshref',  'omar@example.com',  'HASHED_PASSWORD_1', '0791111111'),
+('Sara',  'Ahmad',    'sara@example.com',  'HASHED_PASSWORD_2', '0792222222'),
+('Ahmad', 'Ali',      'ahmad@example.com', 'HASHED_PASSWORD_3', '0793333333'),
+('Lina',  'Khaled',   'lina@example.com',  'HASHED_PASSWORD_4', '0794444444'),
+('Yousef','Mohammad', 'yousef@example.com','HASHED_PASSWORD_5', '0795555555');
+
+INSERT INTO Addresses
+(
+    UserID,
+    AddressType,
+    Country,
+    City,
+    Street,
+    PostalCode,
+    IsDefault
+)
+VALUES
+(1, 'Home', 'Jordan', 'Amman',  'University Street', '11181', 1),
+(2, 'Home', 'Jordan', 'Irbid',  'Wasfi Al-Tal Street', '21110', 1),
+(3, 'Work', 'Jordan', 'Amman',  'Mecca Street', '11185', 1),
+(4, 'Home', 'Jordan', 'Zarqa',  'King Hussein Street', '13110', 1),
+(5, 'Home', 'Jordan', 'Tafila', 'Downtown Tafila', '66110', 1);
+
+INSERT INTO Categories
+(
+    CategoryName,
+    Description
+)
+VALUES
+('Electronics', 'Electronic devices and computer accessories'),
+('Sports',      'Sports and fitness products'),
+('Home',        'Home and kitchen products'),
+('Books',       'Educational and general books'),
+('Fashion',     'Clothing, bags and fashion accessories');
+
+INSERT INTO Products
+(
+    CategoryID,
+    ProductName,
+    SKU,
+    Description,
+    Price,
+    StockQuantity
+)
+VALUES
+(1, 'Wireless Mouse',      'ELEC-001', 'Wireless optical computer mouse', 18.50, 40),
+(1, 'Mechanical Keyboard', 'ELEC-002', 'Mechanical keyboard with RGB lighting', 55.00, 20),
+(1, 'Laptop Stand',        'ELEC-003', 'Adjustable aluminum laptop stand', 32.75, 0),
+(1, 'USB-C Hub',           'ELEC-004', 'Multi-port USB-C hub', 45.90, 15),
+(2, 'Running Shoes',       'SPRT-001', 'Lightweight running shoes', 70.00, 12),
+(3, 'Coffee Maker',        'HOME-001', 'Automatic coffee maker', 89.99, 8),
+(4, 'SQL Fundamentals',    'BOOK-001', 'Introduction to SQL and databases', 24.50, 30),
+(1, 'Smart Watch',         'ELEC-005', 'Smart fitness watch', 120.00, 10),
+(5, 'Travel Backpack',     'FASH-001', 'Water-resistant travel backpack', 39.99, 25),
+(2, 'Yoga Mat',            'SPRT-002', 'Non-slip yoga mat', 22.00, 18);
+
+INSERT INTO Orders
+(
+    OrderNumber,
+    UserID,
+    ShippingAddressID,
+    OrderDate,
+    OrderStatus,
+    Subtotal,
+    ShippingFee,
+    TotalAmount
+)
+VALUES
+(
+    'ORD-2026-001',
+    1,
+    1,
+    DATEADD(DAY, -20, GETDATE()),
+    'Delivered',
+    61.50,
+    12.50,
+    74.00
+),
+(
+    'ORD-2026-002',
+    2,
+    2,
+    DATEADD(DAY, -15, GETDATE()),
+    'Delivered',
+    89.99,
+    7.50,
+    97.49
+),
+(
+    'ORD-2026-003',
+    1,
+    1,
+    DATEADD(DAY, -10, GETDATE()),
+    'Shipped',
+    100.90,
+    0.00,
+    100.90
+),
+(
+    'ORD-2026-004',
+    3,
+    3,
+    DATEADD(DAY, -7, GETDATE()),
+    'Paid',
+    92.00,
+    5.00,
+    97.00
+),
+(
+    'ORD-2026-005',
+    4,
+    4,
+    DATEADD(DAY, -3, GETDATE()),
+    'Pending',
+    64.49,
+    6.00,
+    70.49
+),
+(
+    'ORD-2026-006',
+    5,
+    5,
+    DATEADD(DAY, -1, GETDATE()),
+    'Processing',
+    51.25,
+    6.50,
+    57.75
+);
+
+INSERT INTO OrderItems
+(
+    OrderID,
+    ProductID,
+    Quantity,
+    UnitPrice
+)
+VALUES
+(1, 1, 2, 18.50),
+(1, 7, 1, 24.50),
+
+(2, 6, 1, 89.99),
+
+(3, 2, 1, 55.00),
+(3, 4, 1, 45.90),
+
+(4, 5, 1, 70.00),
+(4, 10, 1, 22.00),
+
+(5, 9, 1, 39.99),
+(5, 7, 1, 24.50),
+
+(6, 1, 1, 18.50),
+(6, 3, 1, 32.75);
+
+INSERT INTO Payments
+(
+    OrderID,
+    PaymentDate,
+    Amount,
+    PaymentMethod,
+    PaymentStatus,
+    TransactionReference
+)
+VALUES
+(
+    1,
+    DATEADD(DAY, -20, GETDATE()),
+    74.00,
+    'Card',
+    'Completed',
+    'TXN-100001'
+),
+(
+    2,
+    DATEADD(DAY, -15, GETDATE()),
+    97.49,
+    'Cash',
+    'Completed',
+    'TXN-100002'
+),
+(
+    3,
+    DATEADD(DAY, -10, GETDATE()),
+    100.90,
+    'Card',
+    'Completed',
+    'TXN-100003'
+),
+(
+    4,
+    DATEADD(DAY, -7, GETDATE()),
+    97.00,
+    'Wallet',
+    'Completed',
+    'TXN-100004'
+),
+(
+    6,
+    DATEADD(DAY, -1, GETDATE()),
+    57.75,
+    'Card',
+    'Completed',
+    'TXN-100006'
+);
+
+INSERT INTO Reviews
+(
+    UserID,
+    ProductID,
+    Rating,
+    ReviewComment
+)
+VALUES
+(1, 1, 5, 'Excellent mouse and very comfortable.'),
+(1, 7, 4, 'A useful book for SQL beginners.'),
+(2, 6, 4, 'Good coffee maker and easy to use.'),
+(3, 5, 5, 'Very comfortable running shoes.'),
+(4, 7, 5, 'Clear explanations and useful examples.'),
+(5, 1, 4, 'Good quality for the price.'),
+(2, 2, 5, 'The keyboard feels great when typing.');
+
+INSERT INTO Wishlists
+(
+    UserID,
+    WishlistName
+)
+VALUES
+(1, 'Omar Wishlist'),
+(2, 'Sara Wishlist'),
+(3, 'Ahmad Wishlist'),
+(4, 'Lina Wishlist'),
+(5, 'Yousef Wishlist');
+
+INSERT INTO WishlistItems
+(
+    WishlistID,
+    ProductID
+)
+VALUES
+(1, 5),
+(1, 6),
+(1, 8),
+(2, 2),
+(2, 9),
+(3, 1),
+(3, 7),
+(4, 4),
+(4, 10),
+(5, 2),
+(5, 6);
+
