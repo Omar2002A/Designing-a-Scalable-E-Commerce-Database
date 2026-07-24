@@ -655,3 +655,188 @@ VALUES
 (5, 2),
 (5, 6);
 
+-- Update 
+
+UPDATE Products
+SET
+    Price = 59.99,
+    UpdatedAt = GETDATE()
+WHERE ProductID = 2;
+
+-- Soft Delete
+
+UPDATE Products
+SET
+    IsDeleted = 1,
+    IsAvailable = 0,
+    UpdatedAt = GETDATE()
+WHERE ProductID = 8;
+
+-- Orders Overview
+
+SELECT O.OrderID,O.OrderNumber, CONCAT(U.FirstName, ' ',U.LastName) AS CustomerName,
+       U.Email, U.Phone, O.OrderDate, O.OrderStatus, O.Subtotal, O.ShippingFee, O.TotalAmount,
+       COALESCE(p.PaymentMethod, 'No Payment') AS PaymentMethod, COALESCE(P.PaymentStatus, 'Not Paid') AS PaymentStatus
+
+FROM Orders AS O
+
+INNER JOIN Users AS U
+    ON O.OrderID = U.UserID
+
+LEFT JOIN Payments AS P
+    ON O.OrderID = P.OrderID
+    AND P.IsDeleted = 0
+
+WHERE 
+    O.IsDeleted = 0
+    AND U.IsDeleted = 0
+
+ORDER BY O.OrderDate DESC;
+
+
+-- Product Listing
+
+SELECT P.ProductID, P.ProductName, P.SKU, C.CategoryName, P.Price, P.StockQuantity
+FROM Products AS P
+
+INNER JOIN Categories AS C
+    ON P.CategoryID = C.CategoryID
+
+WHERE 
+    P.IsDeleted = 0
+    AND IsAvailable = 1
+    AND P.StockQuantity > 0
+    AND C.IsDeleted = 0
+
+ORDER BY P.Price ASC
+
+OFFSET 0 ROWS
+FETCH NEXT 5 ROWS ONLY;
+
+SELECT P.ProductID, P.ProductName, P.SKU, C.CategoryName, P.Price, P.StockQuantity
+FROM Products AS P
+
+INNER JOIN Categories AS C
+    ON P.CategoryID = C.CategoryID
+
+WHERE 
+    P.IsDeleted = 0
+    AND IsAvailable = 1
+    AND P.StockQuantity > 0
+    AND C.IsDeleted = 0
+
+ORDER BY P.Price ASC
+
+OFFSET 5 ROWS
+FETCH NEXT 5 ROWS ONLY;
+
+-- Product Ratings
+
+SELECT P.ProductID, P.ProductName,
+       CAST(COALESCE(AVG(CAST(R.Rating AS DECIMAL(10,2))),0)AS DECIMAL(10,2)) AS AverageRating,
+       COUNT(R.ReviewID) AS TotalReviews
+
+FROM Products AS P
+
+LEFT JOIN Reviews AS R 
+    ON P.ProductID = R.ProductID
+    AND R.IsDeleted = 0
+
+WHERE P.IsDeleted = 0
+
+GROUP BY 
+    P.ProductID,
+    P.ProductName
+
+ORDER BY 
+    AverageRating DESC,
+    TotalReviews DESC;
+
+
+-- Wishlist
+
+SELECT U.UserID, CONCAT(U.FirstName, ' ', U.LastName) AS CustomerName,
+       W.WishlistName, P.ProductID, P.ProductName,
+       C.CategoryName, P.Price, WI.CreatedAt AS AddedToWishlistAt
+       
+
+FROM Users AS U
+
+INNER JOIN Wishlists AS W 
+    ON U.UserID = W.UserID
+
+INNER JOIN WishlistItems AS WI
+    ON W.WishlistID = WI.WishlistID
+
+INNER JOIN Products AS P
+    ON WI.ProductID = P.ProductID
+
+INNER JOIN Categories AS C
+    ON P.CategoryID = C.CategoryID
+
+WHERE 
+    U.UserID = 1
+    AND U.IsDeleted = 0
+    AND W.IsDeleted = 0
+    AND WI.IsDeleted = 0
+    AND P.IsDeleted = 0
+    AND C.IsDeleted = 0
+
+ORDER BY WI.CreatedAt DESC;
+
+-- Sales Analysis
+
+SELECT U.UserID,CONCAT(U.FirstName, ' ', U.LastName) AS CustomerName,
+       COUNT(P.PaymentID) AS PaidOrders, COALESCE(SUM(P.Amount),0) AS TotalSales
+
+FROM Users AS U
+
+LEFT JOIN Orders AS O
+    ON U.UserID = O.UserID
+    AND O.IsDeleted = 0
+
+LEFT JOIN Payments AS P
+    ON O.OrderID = P.OrderID
+    AND P.PaymentStatus = 'Completed'
+    AND P.IsDeleted = 0
+
+WHERE U.IsDeleted = 0
+
+GROUP BY
+    U.UserID,
+    U.FirstName,
+    U.LastName
+
+ORDER BY TotalSales DESC;
+
+-- Filtering
+
+SELECT P.ProductID, P.ProductName, C.CategoryName, P.Price, P.StockQuantity
+
+FROM Products AS P
+
+INNER JOIN Categories AS C
+    ON P.CategoryID = C.CategoryID
+
+WHERE
+    P.IsDeleted = 0
+    AND P.IsAvailable = 1
+    AND P.Price BETWEEN 20.00 AND 60.00
+
+ORDER BY P.Price ASC;
+
+-- Recent Orders
+
+SELECT TOP 5 O.OrderID, O.OrderNumber, CONCAT(U.FirstName, ' ', U.LastName) AS CustomerName,
+           O.OrderDate, O.OrderStatus, O.TotalAmount
+
+FROM Orders AS O
+
+INNER JOIN Users AS U
+    ON O.UserID = U.UserID
+
+WHERE
+    O.IsDeleted = 0
+    AND U.IsDeleted = 0
+
+ORDER BY O.OrderDate DESC;
